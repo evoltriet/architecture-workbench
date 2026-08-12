@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.16.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Format, lint, typecheck, test, and compile
+        run: pnpm check
+
+      - name: Verify committed diagram previews
+        run: pnpm example:diagrams
+
+      - name: Validate reference architecture
+        run: pnpm example:validate
+
+      - name: Build reference DOCX
+        run: pnpm example:build
+
+      - name: Audit production dependencies
+        run: pnpm audit --prod --audit-level high
+
+      - name: Install visual QA tools
+        run: sudo apt-get update && sudo apt-get install -y libreoffice-writer poppler-utils
+
+      - name: Render smoke test
+        run: |
+          mkdir -p outputs/render-smoke
+          libreoffice --headless --convert-to pdf --outdir outputs/render-smoke examples/service-fulfillment/dist/civic-service-fulfillment.docx
+          pdftoppm -png -f 1 -singlefile outputs/render-smoke/civic-service-fulfillment.pdf outputs/render-smoke/page-1
+          test -s outputs/render-smoke/page-1.png
+
+      - name: Upload reference DOCX
+        uses: actions/upload-artifact@v4
+        with:
+          name: civic-service-fulfillment-docx
+          path: examples/service-fulfillment/dist/civic-service-fulfillment.docx
+          if-no-files-found: error
+          retention-days: 14

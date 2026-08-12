@@ -1,0 +1,11 @@
+node_modules/
+dist/
+coverage/
+outputs/
+*.log
+.DS_Store
+Thumbs.db
+examples/**/dist/
+templates/**/dist/
+*.docx
+*.pdf

@@ -1,0 +1,44 @@
+schemaVersion: 1
+
+document:
+  title: Service Architecture
+  author: Architecture Team
+  subject: Behavioral and deployment architecture for a long-running service
+  keywords:
+    - architecture
+    - workflow
+    - security
+    - operations
+  source: architecture.md
+  output: dist/service-architecture.docx
+  page:
+    size: letter
+    orientation: portrait
+    marginInches: 1
+  toc:
+    mode: static
+    depth: 2
+  requireExplicitNumbering: true
+
+diagrams:
+  sourceDir: diagrams
+  renderedDir: diagrams/rendered
+  embedSource: true
+
+quality:
+  profile: service
+  requiredSections:
+    - Executive Summary
+    - Scope and Audience
+    - Requirements and Assumptions
+    - Architecture Overview
+    - Runtime Flows
+    - API and Data Contracts
+    - Scalability and Resilience
+    - Security, Privacy, and Audit
+    - Human Escalation and Failure Handling
+    - Ownership and Operating Model
+    - Reference Deployment
+    - Architecture Decisions
+    - References
+  forbiddenPatterns: []
