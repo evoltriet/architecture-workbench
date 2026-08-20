@@ -17,10 +17,15 @@ mitigation. You should receive an acknowledgement within seven days.
 ## Security Boundaries
 
 - The CLI reads and writes local project files.
-- It makes no network calls and has no telemetry.
+- It makes no network calls, has no telemetry, and stores no model credentials.
 - It does not evaluate Markdown or embedded diagram code.
-- Remote images and image paths outside the project are rejected.
+- Real paths are confined to the project; traversal, escaping symlinks, remote images, and image
+  paths outside the project are rejected.
 - Diagram export invokes a local executable selected by the user or discovered from known names.
-- AI prompt files are documentation only; no model integration exists.
+- The optional stdio MCP server exposes bounded project tools and resources but no shell, patch, Git
+  write, network-fetch, publication, or direct model tools.
 
-Review architecture content before providing it to any external service or model.
+Architecture content is untrusted data and cannot override `AGENTS.md` or host policy. Connecting an
+MCP host may expose requested content to that host's model; review classification and redaction
+requirements first. Human attribution is required for accepted decisions, accepted risks, and
+security exceptions.

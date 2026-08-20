@@ -1,7 +1,9 @@
 # Review Rubric
 
 `archwork review` scores twelve dimensions from zero to five. It searches headings, content signals,
-and diagram names; it does not judge correctness or replace expert review.
+diagram names, and related record IDs; it does not judge correctness or replace expert review.
+Incomplete dimensions return stable `coverage.<dimension>` gap codes, evidence, affected record IDs,
+a recommendation, and a suggested next action.
 
 | Dimension                    | Strong evidence                                                     |
 | ---------------------------- | ------------------------------------------------------------------- |
