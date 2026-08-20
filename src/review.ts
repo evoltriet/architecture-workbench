@@ -1,5 +1,6 @@
 import path from "node:path";
 
+import { parseArchitectureRecords } from "./records.js";
 import type { ParsedArchitecture, ReviewDimension, ReviewReport } from "./types.js";
 
 type DimensionDefinition = {
@@ -8,6 +9,7 @@ type DimensionDefinition = {
   headingTerms: string[];
   contentTerms: RegExp[];
   diagramTerms?: string[];
+  recordKinds?: ("requirements" | "assumptions" | "decisions" | "risks")[];
   recommendation: string;
 };
 
@@ -17,6 +19,7 @@ const DIMENSIONS: DimensionDefinition[] = [
     name: "Audience, scope, and drivers",
     headingTerms: ["scope", "audience", "requirements", "assumptions"],
     contentTerms: [/in scope/i, /out of scope/i, /assumption/i],
+    recordKinds: ["requirements", "assumptions"],
     recommendation:
       "State the decision audience, boundaries, quality attributes, and key assumptions.",
   },
@@ -35,6 +38,7 @@ const DIMENSIONS: DimensionDefinition[] = [
     headingTerms: ["domain", "configuration", "settings", "state ownership"],
     contentTerms: [/entity/i, /version/i, /configuration/i],
     diagramTerms: ["domain"],
+    recordKinds: ["decisions"],
     recommendation:
       "Model domain entities, configuration precedence, runtime state, and versioned artifacts.",
   },
@@ -44,6 +48,7 @@ const DIMENSIONS: DimensionDefinition[] = [
     headingTerms: ["runtime flows", "sequence", "state", "lifecycle"],
     contentTerms: [/happy path/i, /rejection/i, /state transition/i],
     diagramTerms: ["sequence", "state"],
+    recordKinds: ["requirements", "decisions"],
     recommendation: "Add happy-path and failure sequences plus an end-to-end state model.",
   },
   {
@@ -51,6 +56,7 @@ const DIMENSIONS: DimensionDefinition[] = [
     name: "API and data contracts",
     headingTerms: ["api", "data contracts", "interfaces"],
     contentTerms: [/\b(GET|POST|PUT|PATCH|DELETE)\b/, /request/i, /response/i, /idempot/i],
+    recordKinds: ["requirements", "decisions"],
     recommendation:
       "Define external and internal operations, stable identifiers, schemas, and idempotency.",
   },
@@ -59,6 +65,7 @@ const DIMENSIONS: DimensionDefinition[] = [
     name: "Capacity and scalability",
     headingTerms: ["scalability", "capacity", "quotas"],
     contentTerms: [/concurren/i, /p9[59]/i, /throughput/i, /queue/i],
+    recordKinds: ["assumptions"],
     recommendation:
       "Quantify demand, concurrency, runtime percentiles, quota fit, and backpressure thresholds.",
   },
@@ -68,6 +75,7 @@ const DIMENSIONS: DimensionDefinition[] = [
     headingTerms: ["resilience", "failure", "disaster recovery"],
     contentTerms: [/retry/i, /timeout/i, /circuit breaker/i, /RTO|RPO/, /quarantine/i],
     diagramTerms: ["retry", "escalation"],
+    recordKinds: ["assumptions", "risks"],
     recommendation:
       "Specify bounded retries, timeout budgets, isolation, recovery objectives, and failure modes.",
   },
@@ -82,6 +90,7 @@ const DIMENSIONS: DimensionDefinition[] = [
       /data minimization/i,
     ],
     diagramTerms: ["trust", "security"],
+    recordKinds: ["requirements", "decisions", "risks"],
     recommendation:
       "Show trust boundaries and define identity, encryption, minimization, retention, and access policy.",
   },
@@ -90,6 +99,7 @@ const DIMENSIONS: DimensionDefinition[] = [
     name: "Auditability and evidence",
     headingTerms: ["audit", "evidence", "retention"],
     contentTerms: [/immutable|append-only/i, /actor/i, /timestamp/i, /retention/i],
+    recordKinds: ["requirements", "assumptions", "risks"],
     recommendation:
       "Define actor-attributed events, timestamps, integrity, evidence handling, and retention.",
   },
@@ -99,6 +109,7 @@ const DIMENSIONS: DimensionDefinition[] = [
     headingTerms: ["human", "escalation", "failure handling"],
     contentTerms: [/cancel/i, /resume/i, /override/i, /human review/i],
     diagramTerms: ["escalation"],
+    recordKinds: ["requirements", "risks"],
     recommendation: "Define pause, cancel, resume, override, ambiguity, and fail-closed behavior.",
   },
   {
@@ -106,6 +117,7 @@ const DIMENSIONS: DimensionDefinition[] = [
     name: "Ownership and operating model",
     headingTerms: ["ownership", "operating model", "responsibilities"],
     contentTerms: [/owned by/i, /responsib/i, /operator/i],
+    recordKinds: ["decisions", "risks"],
     recommendation:
       "Assign implementation, infrastructure, operational, and shared responsibilities explicitly.",
   },
@@ -115,6 +127,7 @@ const DIMENSIONS: DimensionDefinition[] = [
     headingTerms: ["deployment", "architecture decisions", "references"],
     contentTerms: [/decision/i, /trade-?off/i, /reference/i],
     diagramTerms: ["deployment"],
+    recordKinds: ["decisions"],
     recommendation:
       "Connect the logical design to a deployment example and record consequential decisions.",
   },
@@ -130,6 +143,7 @@ function scoreDimension(
   definition: DimensionDefinition,
   parsed: ParsedArchitecture,
   diagramNames: string[],
+  affectedRecordIds: string[],
 ): ReviewDimension {
   const headings = normalizedHeadings(parsed);
   const evidence: string[] = [];
@@ -166,8 +180,13 @@ function scoreDimension(
     score: Math.min(score, 5),
     maxScore: 5,
     evidence,
+    affectedRecordIds,
   };
   if (result.score < result.maxScore) result.recommendation = definition.recommendation;
+  if (result.score < result.maxScore) {
+    result.gapCode = `coverage.${definition.id}`;
+    result.suggestedAction = definition.recommendation;
+  }
   return result;
 }
 
@@ -176,7 +195,13 @@ export function reviewArchitecture(
   diagramFiles: string[],
 ): ReviewReport {
   const names = diagramFiles.map((file) => path.basename(file, path.extname(file)).toLowerCase());
-  const dimensions = DIMENSIONS.map((definition) => scoreDimension(definition, parsed, names));
+  const records = parseArchitectureRecords(parsed).records;
+  const dimensions = DIMENSIONS.map((definition) => {
+    const affectedRecordIds = (definition.recordKinds ?? [])
+      .flatMap((kind) => records[kind].map((record) => record.id))
+      .sort();
+    return scoreDimension(definition, parsed, names, affectedRecordIds);
+  });
   const score = dimensions.reduce((sum, dimension) => sum + dimension.score, 0);
   const maxScore = dimensions.reduce((sum, dimension) => sum + dimension.maxScore, 0);
   return {

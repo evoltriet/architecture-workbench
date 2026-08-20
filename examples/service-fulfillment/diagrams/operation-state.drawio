@@ -1,1 +1,71 @@
-<?xml version="1.0" encoding="UTF-8"?><mxfile host="app.diagrams.net" agent="architecture-workbench" version="24.7.17" type="device"><diagram id="operation-state" name="Fulfillment Operation State Model"><mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0"><root><mxCell id="0"/><mxCell id="1" parent="0"/><mxCell id="accepted" value="&lt;b&gt;Accepted&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#EAF4F8;strokeColor=#347A9B;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="80" y="180" width="180" height="90" as="geometry"/></mxCell><mxCell id="queued" value="&lt;b&gt;Queued&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#EAF4F8;strokeColor=#347A9B;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="330" y="180" width="180" height="90" as="geometry"/></mxCell><mxCell id="running" value="&lt;b&gt;Running&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#EAF4F8;strokeColor=#347A9B;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="580" y="180" width="180" height="90" as="geometry"/></mxCell><mxCell id="waiting" value="&lt;b&gt;WaitingForHuman&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#FFF3DF;strokeColor=#CF7A21;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="850" y="180" width="230" height="90" as="geometry"/></mxCell><mxCell id="succeeded" value="&lt;b&gt;Succeeded&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#EEF4E5;strokeColor=#6F934A;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="1160" y="130" width="190" height="90" as="geometry"/></mxCell><mxCell id="failed" value="&lt;b&gt;Failed&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#FBE9E7;strokeColor=#B6534D;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="1160" y="300" width="190" height="90" as="geometry"/></mxCell><mxCell id="cancel" value="&lt;b&gt;CancelRequested&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#FFF3DF;strokeColor=#CF7A21;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="580" y="480" width="220" height="90" as="geometry"/></mxCell><mxCell id="canceled" value="&lt;b&gt;Canceled&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#FBE9E7;strokeColor=#B6534D;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="920" y="480" width="190" height="90" as="geometry"/></mxCell><mxCell id="rejected" value="&lt;b&gt;Rejected&lt;/b&gt;&lt;br&gt;Unsupported or invalid" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#FBE9E7;strokeColor=#B6534D;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="180" y="480" width="220" height="115" as="geometry"/></mxCell><mxCell id="stream" value="&lt;b&gt;Every transition emits&lt;/b&gt;&lt;br&gt;sequence&lt;br&gt;timestamp&lt;br&gt;redacted message" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#EEF4E5;strokeColor=#6F934A;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="1230" y="560" width="270" height="145" as="geometry"/></mxCell><mxCell id="edge-1" value="" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="accepted" target="queued"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge-2" value="" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="queued" target="running"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge-3" value="policy or ambiguity" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="running" target="waiting"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge-4" value="resume" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="waiting" target="running"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge-5" value="" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="running" target="succeeded"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge-6" value="" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="running" target="failed"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge-7" value="" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="running" target="cancel"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge-8" value="" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="cancel" target="canceled"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge-9" value="" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="accepted" target="rejected"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge-10" value="" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="failed" target="stream"><mxGeometry relative="1" as="geometry"/></mxCell></root></mxGraphModel></diagram></mxfile>
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" agent="architecture-workbench" version="24.7.17" type="device">
+  <diagram id="operation-state" name="Fulfillment Operation State Model">
+    <mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="accepted" value="&lt;b&gt;Accepted&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#EAF4F8;strokeColor=#347A9B;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="80" y="180" width="180" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="queued" value="&lt;b&gt;Queued&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#EAF4F8;strokeColor=#347A9B;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="330" y="180" width="180" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="running" value="&lt;b&gt;Running&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#EAF4F8;strokeColor=#347A9B;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="580" y="180" width="180" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="waiting" value="&lt;b&gt;WaitingForHuman&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#FFF3DF;strokeColor=#CF7A21;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="850" y="180" width="230" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="succeeded" value="&lt;b&gt;Succeeded&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#EEF4E5;strokeColor=#6F934A;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1160" y="130" width="190" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="failed" value="&lt;b&gt;Failed&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#FBE9E7;strokeColor=#B6534D;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1160" y="300" width="190" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="cancel" value="&lt;b&gt;CancelRequested&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#FFF3DF;strokeColor=#CF7A21;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="580" y="480" width="220" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="canceled" value="&lt;b&gt;Canceled&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#FBE9E7;strokeColor=#B6534D;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="920" y="480" width="190" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="rejected" value="&lt;b&gt;Rejected&lt;/b&gt;&lt;br&gt;Unsupported or invalid" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#FBE9E7;strokeColor=#B6534D;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="180" y="480" width="220" height="115" as="geometry"/>
+        </mxCell>
+        <mxCell id="stream" value="&lt;b&gt;Every transition emits&lt;/b&gt;&lt;br&gt;sequence&lt;br&gt;timestamp&lt;br&gt;redacted message" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#EEF4E5;strokeColor=#6F934A;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1230" y="560" width="270" height="145" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-1" value="" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="accepted" target="queued">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-2" value="" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="queued" target="running">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-3" value="policy or ambiguity" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="running" target="waiting">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-4" value="resume" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="waiting" target="running">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-5" value="" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="running" target="succeeded">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-6" value="" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="running" target="failed">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-7" value="" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="running" target="cancel">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-8" value="" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="cancel" target="canceled">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-9" value="" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="accepted" target="rejected">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-10" value="" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="failed" target="stream">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

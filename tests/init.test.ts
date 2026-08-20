@@ -20,6 +20,11 @@ describe("project initialization", () => {
     const config = await loadConfig(path.join(target, "architecture.yaml"));
     const parsed = parseArchitecture(await readFile(config.sourcePath, "utf8"));
     expect(config.projectDir).toBe(target);
+    expect(await readFile(path.join(target, "AGENTS.md"), "utf8")).toContain(
+      "Architecture Project Agent Map",
+    );
+    expect((await readFile(path.join(target, "CLAUDE.md"), "utf8")).trim()).toBe("@AGENTS.md");
+    expect(config.agent?.approvalGates).toContain("external-publication");
     expect(await validateProject(parsed, config, true)).toEqual([]);
   });
 });

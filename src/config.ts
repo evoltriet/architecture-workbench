@@ -1,10 +1,11 @@
-import { readFile } from "node:fs/promises";
+import { readFile, realpath } from "node:fs/promises";
 import path from "node:path";
 
 import yaml from "js-yaml";
 import { z } from "zod";
 
-import type { ArchitectureConfig, ResolvedArchitectureConfig } from "./types.js";
+import { assertConfinedPattern, resolveConfinedPath } from "./paths.js";
+import type { AgentPolicy, ArchitectureConfig, ResolvedArchitectureConfig } from "./types.js";
 
 const DEFAULT_REQUIRED_SECTIONS = [
   "Executive Summary",
@@ -36,6 +37,31 @@ const tocSchema = z
     depth: z.union([z.literal(2), z.literal(3), z.literal(4)]).default(2),
   })
   .default({ mode: "static", depth: 2 });
+
+const agentSchema = z.object({
+  instructions: z.string().min(1).default("AGENTS.md"),
+  editablePaths: z
+    .array(z.string().min(1))
+    .default(["architecture.yaml", "architecture.md", "AGENTS.md", "diagrams/**/*.drawio"]),
+  generatedPaths: z
+    .array(z.string().min(1))
+    .default(["diagrams/rendered/**/*.png", "dist/**/*.docx"]),
+  approvalGates: z
+    .array(
+      z.enum([
+        "decision-acceptance",
+        "risk-acceptance",
+        "security-exception",
+        "external-publication",
+      ]),
+    )
+    .default([
+      "decision-acceptance",
+      "risk-acceptance",
+      "security-exception",
+      "external-publication",
+    ]),
+});
 
 const configSchema = z.object({
   schemaVersion: z.literal(1),
@@ -72,6 +98,7 @@ const configSchema = z.object({
       requiredSections: DEFAULT_REQUIRED_SECTIONS,
       forbiddenPatterns: [],
     }),
+  agent: agentSchema.optional(),
 });
 
 export class ConfigurationError extends Error {
@@ -84,15 +111,17 @@ export class ConfigurationError extends Error {
 export async function loadConfig(
   configFile = "architecture.yaml",
 ): Promise<ResolvedArchitectureConfig> {
-  const configPath = path.resolve(configFile);
+  const requestedConfigPath = path.resolve(configFile);
   let raw: string;
   try {
-    raw = await readFile(configPath, "utf8");
+    raw = await readFile(requestedConfigPath, "utf8");
   } catch (error) {
     throw new ConfigurationError(
-      `Cannot read configuration at ${configPath}: ${error instanceof Error ? error.message : String(error)}`,
+      `Cannot read configuration at ${requestedConfigPath}: ${error instanceof Error ? error.message : String(error)}`,
     );
   }
+
+  const configPath = await realpath(requestedConfigPath);
 
   let input: unknown;
   try {
@@ -113,17 +142,52 @@ export async function loadConfig(
 
   const config: ArchitectureConfig = result.data;
   const projectDir = path.dirname(configPath);
+  let sourcePath: string;
+  let outputPath: string;
+  let diagramSourcePath: string;
+  let diagramRenderedPath: string;
+  try {
+    sourcePath = await resolveConfinedPath(projectDir, config.document.source);
+    outputPath = await resolveConfinedPath(projectDir, config.document.output);
+    diagramSourcePath = await resolveConfinedPath(projectDir, config.diagrams.sourceDir);
+    diagramRenderedPath = await resolveConfinedPath(projectDir, config.diagrams.renderedDir);
+    const policy = effectiveAgentPolicy(config);
+    await resolveConfinedPath(projectDir, policy.instructions);
+    for (const pattern of [...policy.editablePaths, ...policy.generatedPaths]) {
+      assertConfinedPattern(pattern);
+    }
+  } catch (error) {
+    throw new ConfigurationError(
+      `Invalid project path: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
   return {
     ...config,
     configPath,
     projectDir,
-    sourcePath: path.resolve(projectDir, config.document.source),
-    outputPath: path.resolve(projectDir, config.document.output),
-    diagramSourcePath: path.resolve(projectDir, config.diagrams.sourceDir),
-    diagramRenderedPath: path.resolve(projectDir, config.diagrams.renderedDir),
+    sourcePath,
+    outputPath,
+    diagramSourcePath,
+    diagramRenderedPath,
   };
 }
 
 export function defaultRequiredSections(): string[] {
   return [...DEFAULT_REQUIRED_SECTIONS];
+}
+
+export function effectiveAgentPolicy(config: ArchitectureConfig): AgentPolicy {
+  return (
+    config.agent ?? {
+      instructions: "AGENTS.md",
+      editablePaths: ["architecture.yaml", "architecture.md", "AGENTS.md", "diagrams/**/*.drawio"],
+      generatedPaths: ["diagrams/rendered/**/*.png", "dist/**/*.docx"],
+      approvalGates: [
+        "decision-acceptance",
+        "risk-acceptance",
+        "security-exception",
+        "external-publication",
+      ],
+    }
+  );
 }

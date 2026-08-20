@@ -35,9 +35,11 @@ audience should be able to decide after reading the document.
 
 ### 3.1 Functional Requirements
 
-- State the service outcomes and observable behavior.
-- Define progress, cancellation, resume, and override expectations for long-running operations.
-- Identify admission checks and irreversible policy gates.
+| ID      | Requirement                                                                                   | Source                       | Owner          | Verification                       | Status   |
+| ------- | --------------------------------------------------------------------------------------------- | ---------------------------- | -------------- | ---------------------------------- | -------- |
+| REQ-001 | Replace with the first externally observable service outcome.                                 | Discovery input (unverified) | Product owner  | Define an acceptance test.         | proposed |
+| REQ-002 | Long-running operations expose progress, cancellation, resume, and authorized override.       | Discovery input (unverified) | API owner      | Exercise the API lifecycle test.   | proposed |
+| REQ-003 | Admission rejects unsupported inputs before capacity is consumed and gates irreversible work. | Discovery input (unverified) | Workflow owner | Exercise rejection and gate tests. | proposed |
 
 ### 3.2 Non-Functional Requirements
 
@@ -49,6 +51,12 @@ audience should be able to decide after reading the document.
 | Recovery             | [RTO and RPO] | [recovery test]                |
 
 ### 3.3 Capacity Assumptions
+
+| ID      | Assumption                                                   | Evidence Needed                      | Owner             | Review Trigger                | Status |
+| ------- | ------------------------------------------------------------ | ------------------------------------ | ----------------- | ----------------------------- | ------ |
+| ASM-001 | Replace with annual and peak operation volume.               | Forecast and observed demand         | Capacity owner    | Quarterly or material growth  | open   |
+| ASM-002 | Replace with average and p95 end-to-end runtime.             | Production-like load test            | Workflow owner    | Runtime model changes         | open   |
+| ASM-003 | Replace with retry and burst inflation used for concurrency. | Failure telemetry and seasonal model | Reliability owner | Retry policy or traffic shift | open   |
 
 Document annual volume, peak arrival rate, average and p95 runtime, retry inflation, and the
 resulting peak concurrency. Show the calculation so the hosting team can replace assumptions with
@@ -183,6 +191,13 @@ Editable source: [retry-escalation.drawio](diagrams/retry-escalation.drawio).
 Define backup scope, RTO, RPO, restoration tests, multi-zone behavior, regional recovery posture,
 and retention by data class.
 
+### 7.5 Risk Records
+
+| ID      | Risk                                                        | Likelihood | Impact | Mitigation                                    | Owner          | Status | Approved By               |
+| ------- | ----------------------------------------------------------- | ---------- | ------ | --------------------------------------------- | -------------- | ------ | ------------------------- |
+| RSK-001 | Replace with the highest material architecture risk.        | unknown    | high   | Define a measurable mitigation and test.      | Risk owner     | open   | Pending human disposition |
+| RSK-002 | Ambiguous irreversible outcomes could cause duplicate work. | possible   | high   | Fail closed and require authoritative review. | Workflow owner | open   | Pending human disposition |
+
 ## 8. Security, Privacy, and Audit
 
 ### 8.1 Data Classification and Minimization
@@ -253,13 +268,18 @@ Editable source: [reference-deployment.drawio](diagrams/reference-deployment.dra
 
 ## 12. Architecture Decisions
 
-| Decision   | Rationale | Trade-off            | Revisit trigger      |
-| ---------- | --------- | -------------------- | -------------------- |
-| [decision] | [why]     | [cost or limitation] | [measurable trigger] |
+| ID      | Decision                                                    | Rationale                                     | Consequences                                     | Status   | Owner              | Approved By            |
+| ------- | ----------------------------------------------------------- | --------------------------------------------- | ------------------------------------------------ | -------- | ------------------ | ---------------------- |
+| ADR-001 | Use a stable operation identifier for long-running work.    | Polling, streaming, cancel, and resume align. | Clients must manage asynchronous state.          | proposed | API owner          | Pending human approval |
+| ADR-002 | Keep Markdown and draw.io as canonical architecture source. | Text and diagrams remain reviewable in Git.   | Generated DOCX and PNG files must not be edited. | proposed | Architecture owner | Pending human approval |
 
 Record consequential decisions as short architecture decision records when the table is not enough.
 
 ## 13. References
+
+| ID      | Supports         | Source                      | Retrieved On | Notes                                               |
+| ------- | ---------------- | --------------------------- | ------------ | --------------------------------------------------- |
+| EVD-001 | REQ-001, ASM-001 | Replace with primary source | 1970-01-01   | Starter placeholder; not sufficient for acceptance. |
 
 - Link primary platform documentation, standards, threat models, quota documentation, and decision
   records used by the architecture.

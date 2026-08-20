@@ -25,6 +25,22 @@ diagrams:
   renderedDir: diagrams/rendered
   embedSource: true
 
+agent:
+  instructions: AGENTS.md
+  editablePaths:
+    - architecture.yaml
+    - architecture.md
+    - AGENTS.md
+    - diagrams/**/*.drawio
+  generatedPaths:
+    - diagrams/rendered/**/*.png
+    - dist/**/*.docx
+  approvalGates:
+    - decision-acceptance
+    - risk-acceptance
+    - security-exception
+    - external-publication
+
 quality:
   profile: service
   requiredSections:

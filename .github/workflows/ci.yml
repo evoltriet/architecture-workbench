@@ -9,15 +9,20 @@ permissions:
   contents: read
 
 jobs:
-  verify:
-    runs-on: ubuntu-latest
+  quality:
+    name: Quality (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
     steps:
       - uses: actions/checkout@v7
 
       - uses: pnpm/action-setup@v6
         with:
-          version: 11.16.0
+          version: 11.19.0
 
       - uses: actions/setup-node@v7
         with:
@@ -27,7 +32,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Format, lint, typecheck, test, and compile
+      - name: Format, lint, typecheck, test, compile, and verify MCP
         run: pnpm check
 
       - name: Verify committed diagram previews
@@ -36,8 +41,33 @@ jobs:
       - name: Validate reference architecture
         run: pnpm example:validate
 
-      - name: Build reference DOCX
-        run: pnpm example:build
+      - name: Verify package contents
+        run: pnpm pack:verify
+
+  artifact:
+    name: DOCX and release artifact
+    needs: quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 11.19.0
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Compile and build reference DOCX
+        run: |
+          pnpm build
+          pnpm example:build
 
       - name: Audit production dependencies
         run: pnpm audit --prod --audit-level high

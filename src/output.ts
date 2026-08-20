@@ -1,4 +1,13 @@
-import type { Diagnostic, ReviewReport } from "./types.js";
+import path from "node:path";
+
+import type {
+  ArchitectureContext,
+  ArchitectureStatus,
+  CommandEnvelope,
+  Diagnostic,
+  ResolvedArchitectureConfig,
+  ReviewReport,
+} from "./types.js";
 
 export function formatDiagnostics(diagnostics: Diagnostic[], format: "text" | "json"): string {
   if (format === "json") return JSON.stringify({ diagnostics }, null, 2);
@@ -29,4 +38,73 @@ export function formatReview(report: ReviewReport, format: "text" | "json"): str
 
 export function hasErrors(diagnostics: Diagnostic[]): boolean {
   return diagnostics.some((diagnostic) => diagnostic.severity === "error");
+}
+
+export function createEnvelope<T>(
+  command: string,
+  config: ResolvedArchitectureConfig,
+  data: T,
+  diagnostics: Diagnostic[],
+): CommandEnvelope<T> {
+  return {
+    schemaVersion: 1,
+    command,
+    ok: !hasErrors(diagnostics),
+    project: {
+      root: ".",
+      config: path.relative(config.projectDir, config.configPath).replaceAll("\\", "/") || ".",
+    },
+    data,
+    diagnostics,
+  };
+}
+
+export function createStandaloneEnvelope<T>(
+  command: string,
+  data: T,
+  diagnostics: Diagnostic[] = [],
+): CommandEnvelope<T> {
+  return {
+    schemaVersion: 1,
+    command,
+    ok: !hasErrors(diagnostics),
+    project: { root: ".", config: "." },
+    data,
+    diagnostics,
+  };
+}
+
+export function formatEnvelope<T>(envelope: CommandEnvelope<T>): string {
+  return JSON.stringify(envelope, null, 2);
+}
+
+export function formatContext(context: ArchitectureContext): string {
+  const recordCount =
+    context.records.requirements.length +
+    context.records.assumptions.length +
+    context.records.decisions.length +
+    context.records.risks.length +
+    context.records.evidence.length;
+  return [
+    context.metadata.title,
+    `Source: ${context.paths.source}`,
+    `Outline: ${context.outline.length} headings`,
+    `Records: ${recordCount}`,
+    `Diagrams: ${context.diagrams.length}`,
+    `Coverage: ${context.review.percentage}%`,
+    `Agent instructions: ${context.policy.instructions}`,
+  ].join("\n");
+}
+
+export function formatStatus(status: ArchitectureStatus): string {
+  const lines = status.phases.map(
+    (phase) =>
+      `${phase.ready ? "READY" : "BLOCKED"} ${phase.name}${phase.blockers.length ? `: ${phase.blockers.join("; ")}` : ""}`,
+  );
+  lines.push(`\nPublishable: ${status.readyToPublish ? "yes" : "no"}`);
+  if (status.nextActions.length > 0) {
+    lines.push("\nNext actions:");
+    lines.push(...status.nextActions.map((action) => `- ${action}`));
+  }
+  return lines.join("\n");
 }

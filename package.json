@@ -1,7 +1,7 @@
 {
   "name": "architecture-workbench",
-  "version": "0.1.0",
-  "description": "Architecture-as-code tooling for reviewable Markdown, editable diagrams, and polished DOCX artifacts.",
+  "version": "0.2.0",
+  "description": "Agent-ready architecture-as-code framework for humans and LLM agents to collaboratively discover, design, review, and publish software architectures.",
   "type": "module",
   "license": "Apache-2.0",
   "author": "Triet Pham",
@@ -13,18 +13,32 @@
     "url": "https://github.com/evoltriet/architecture-workbench/issues"
   },
   "homepage": "https://github.com/evoltriet/architecture-workbench#readme",
+  "keywords": [
+    "architecture-as-code",
+    "software-architecture",
+    "llm-agents",
+    "mcp",
+    "drawio",
+    "docx"
+  ],
   "engines": {
     "node": ">=24"
   },
-  "packageManager": "pnpm@11.16.0",
+  "packageManager": "pnpm@11.19.0",
   "bin": {
     "archwork": "dist/cli.js"
   },
   "files": [
     "dist",
     "templates",
+    "prompts",
+    "integrations",
+    "docs",
+    "AGENTS.md",
+    "CLAUDE.md",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "SECURITY.md"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
@@ -36,14 +50,20 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build",
+    "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm cli:verify && pnpm mcp:verify",
     "example:build": "tsx src/cli.ts build --config examples/service-fulfillment/architecture.yaml",
     "example:validate": "tsx src/cli.ts validate --config examples/service-fulfillment/architecture.yaml --strict",
     "example:review": "tsx src/cli.ts review --config examples/service-fulfillment/architecture.yaml",
     "example:diagrams": "tsx src/cli.ts diagrams verify --config examples/service-fulfillment/architecture.yaml",
-    "assets:generate": "tsx scripts/generate-starter-assets.ts"
+    "example:context": "tsx src/cli.ts context --config examples/service-fulfillment/architecture.yaml --format json",
+    "example:status": "tsx src/cli.ts status --config examples/service-fulfillment/architecture.yaml --format json",
+    "assets:generate": "tsx scripts/generate-starter-assets.ts",
+    "cli:verify": "tsx scripts/verify-cli-json.ts",
+    "mcp:verify": "tsx scripts/verify-mcp.ts",
+    "pack:verify": "tsx scripts/verify-package.ts"
   },
   "dependencies": {
+    "@modelcontextprotocol/server": "2.0.0",
     "commander": "^14.0.0",
     "docx": "^9.5.1",
     "fast-xml-parser": "^5.2.5",
@@ -54,6 +74,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.30.0",
+    "@modelcontextprotocol/client": "2.0.0",
     "@types/js-yaml": "^4.0.9",
     "@types/markdown-it": "^14.1.2",
     "@types/node": "^24.0.0",

@@ -1,1 +1,50 @@
-<?xml version="1.0" encoding="UTF-8"?><mxfile host="app.diagrams.net" agent="architecture-workbench" version="24.7.17" type="device"><diagram id="sequence-failure" name="Failure and Human Review Sequence"><mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0"><root><mxCell id="0"/><mxCell id="1" parent="0"/><mxCell id="worker" value="&lt;b&gt;Worker&lt;/b&gt;&lt;br&gt;Detect non-success" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#EAF4F8;strokeColor=#347A9B;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="80" y="230" width="230" height="120" as="geometry"/></mxCell><mxCell id="classify" value="&lt;b&gt;Failure Classifier&lt;/b&gt;&lt;br&gt;Safe to retry?&lt;br&gt;Ambiguous outcome?" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#FBE9E7;strokeColor=#B6534D;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="390" y="215" width="250" height="150" as="geometry"/></mxCell><mxCell id="workflow" value="&lt;b&gt;Workflow&lt;/b&gt;&lt;br&gt;Persist checkpoint&lt;br&gt;Emit state" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#EAF4F8;strokeColor=#347A9B;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="730" y="230" width="240" height="130" as="geometry"/></mxCell><mxCell id="review" value="&lt;b&gt;Human Review&lt;/b&gt;&lt;br&gt;Inspect evidence&lt;br&gt;Resume or cancel" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#FFF3DF;strokeColor=#CF7A21;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="1060" y="215" width="250" height="150" as="geometry"/></mxCell><mxCell id="client" value="&lt;b&gt;Client&lt;/b&gt;&lt;br&gt;Receive explanation&lt;br&gt;Observe terminal state" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#EAF4F8;strokeColor=#347A9B;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="1370" y="230" width="190" height="130" as="geometry"/></mxCell><mxCell id="incident" value="&lt;b&gt;Route Incident&lt;/b&gt;&lt;br&gt;Deduplicate&lt;br&gt;Quarantine if needed" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#FBE9E7;strokeColor=#B6534D;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="560" y="590" width="250" height="140" as="geometry"/></mxCell><mxCell id="evidence" value="&lt;b&gt;Evidence Store&lt;/b&gt;&lt;br&gt;Redacted trace&lt;br&gt;Integrity hash" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#EEF4E5;strokeColor=#6F934A;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="930" y="590" width="240" height="140" as="geometry"/></mxCell><mxCell id="edge-1" value="" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="worker" target="classify"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge-2" value="classification" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="classify" target="workflow"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge-3" value="ambiguous" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="workflow" target="review"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge-4" value="resolved" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="review" target="client"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge-5" value="repeatable" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="classify" target="incident"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge-6" value="preserve" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="workflow" target="evidence"><mxGeometry relative="1" as="geometry"/></mxCell></root></mxGraphModel></diagram></mxfile>
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" agent="architecture-workbench" version="24.7.17" type="device">
+  <diagram id="sequence-failure" name="Failure and Human Review Sequence">
+    <mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="worker" value="&lt;b&gt;Worker&lt;/b&gt;&lt;br&gt;Detect non-success" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#EAF4F8;strokeColor=#347A9B;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="80" y="230" width="230" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="classify" value="&lt;b&gt;Failure Classifier&lt;/b&gt;&lt;br&gt;Safe to retry?&lt;br&gt;Ambiguous outcome?" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#FBE9E7;strokeColor=#B6534D;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="390" y="215" width="250" height="150" as="geometry"/>
+        </mxCell>
+        <mxCell id="workflow" value="&lt;b&gt;Workflow&lt;/b&gt;&lt;br&gt;Persist checkpoint&lt;br&gt;Emit state" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#EAF4F8;strokeColor=#347A9B;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="730" y="230" width="240" height="130" as="geometry"/>
+        </mxCell>
+        <mxCell id="review" value="&lt;b&gt;Human Review&lt;/b&gt;&lt;br&gt;Inspect evidence&lt;br&gt;Resume or cancel" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#FFF3DF;strokeColor=#CF7A21;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1060" y="215" width="250" height="150" as="geometry"/>
+        </mxCell>
+        <mxCell id="client" value="&lt;b&gt;Client&lt;/b&gt;&lt;br&gt;Receive explanation&lt;br&gt;Observe terminal state" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#EAF4F8;strokeColor=#347A9B;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1370" y="230" width="190" height="130" as="geometry"/>
+        </mxCell>
+        <mxCell id="incident" value="&lt;b&gt;Route Incident&lt;/b&gt;&lt;br&gt;Deduplicate&lt;br&gt;Quarantine if needed" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#FBE9E7;strokeColor=#B6534D;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="560" y="590" width="250" height="140" as="geometry"/>
+        </mxCell>
+        <mxCell id="evidence" value="&lt;b&gt;Evidence Store&lt;/b&gt;&lt;br&gt;Redacted trace&lt;br&gt;Integrity hash" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#EEF4E5;strokeColor=#6F934A;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="930" y="590" width="240" height="140" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-1" value="" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="worker" target="classify">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-2" value="classification" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="classify" target="workflow">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-3" value="ambiguous" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="workflow" target="review">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-4" value="resolved" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="review" target="client">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-5" value="repeatable" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="classify" target="incident">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-6" value="preserve" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="workflow" target="evidence">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

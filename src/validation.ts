@@ -5,6 +5,7 @@ import { XMLParser } from "fast-xml-parser";
 import JSZip from "jszip";
 
 import { verifyDiagrams } from "./diagrams.js";
+import { parseArchitectureRecords, validateArchitectureRecords } from "./records.js";
 import type { Diagnostic, ParsedArchitecture, ResolvedArchitectureConfig } from "./types.js";
 
 function withoutNumbering(value: string): string {
@@ -240,6 +241,16 @@ export async function validateProject(
 
   diagnostics.push(...validateTables(parsed.source, sourceFile));
   diagnostics.push(...validateSensitivePaths(parsed.source, config));
+  const recordResult = parseArchitectureRecords(parsed);
+  diagnostics.push(
+    ...recordResult.diagnostics.map((diagnostic) => ({ ...diagnostic, file: sourceFile })),
+  );
+  diagnostics.push(
+    ...validateArchitectureRecords(recordResult.records).map((diagnostic) => ({
+      ...diagnostic,
+      file: sourceFile,
+    })),
+  );
   diagnostics.push(...(await verifyDiagrams(config)));
 
   if (strict) {
