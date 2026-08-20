@@ -54,13 +54,14 @@ single cloud product.
 
 ### 3.1 Functional Requirements
 
-- Accept a valid service request and return `operation_id`, `state`, and `accepted_at` within two
-  seconds at p95.
-- Emit ordered stage updates at least every ten seconds while useful work is progressing.
-- Support idempotent create, status, cancellation, resume, and authorized override operations.
-- Reject unsupported routes and incomplete requests before consuming worker capacity.
-- Pause before an irreversible provider action when policy requires human approval.
-- Return a stable failure code, summarized event trail, attempted recovery, and safe next action.
+| ID      | Requirement                                                                                     | Source  | Owner          | Verification                                | Status   |
+| ------- | ----------------------------------------------------------------------------------------------- | ------- | -------------- | ------------------------------------------- | -------- |
+| REQ-001 | Return `operation_id`, `state`, and `accepted_at` within two seconds at p95 for valid requests. | EVD-001 | API owner      | Contract test and production latency SLI    | verified |
+| REQ-002 | Emit ordered stage updates at least every ten seconds while useful work is progressing.         | EVD-002 | Workflow owner | Reconnect, ordering, and freshness tests    | verified |
+| REQ-003 | Support idempotent create, status, cancellation, resume, and authorized override operations.    | EVD-001 | API owner      | API lifecycle and replay integration tests  | verified |
+| REQ-004 | Reject unsupported routes and incomplete requests before consuming worker capacity.             | EVD-003 | Product owner  | Admission-policy test suite                 | accepted |
+| REQ-005 | Pause before an irreversible provider action when policy requires human approval.               | EVD-003 | Policy owner   | Human-gate sequence and authorization tests | accepted |
+| REQ-006 | Return a stable failure code, summarized event trail, recovery attempt, and safe next action.   | EVD-004 | Operations     | Failure-mode and operator-experience tests  | accepted |
 
 ### 3.2 Non-Functional Requirements
 
@@ -73,6 +74,14 @@ single cloud product.
 | Audit completeness   | 100 percent of material transitions | Reconciliation of state and append-only events     |
 
 ### 3.3 Capacity Assumptions
+
+| ID      | Assumption                                                                 | Evidence Needed                          | Owner             | Review Trigger                        | Status    |
+| ------- | -------------------------------------------------------------------------- | ---------------------------------------- | ----------------- | ------------------------------------- | --------- |
+| ASM-001 | Annual planning volume is 1.8 million operations.                          | Product forecast                         | Product owner     | Quarterly forecast refresh            | validated |
+| ASM-002 | Peak accepted arrival rate is 2.5 operations per second.                   | Seasonal forecast and load test          | Capacity owner    | Peak traffic changes by 20 percent    | validated |
+| ASM-003 | Average runtime is 45 seconds and p95 runtime is 120 seconds.              | Procedure telemetry                      | Workflow owner    | Procedure version or provider changes | validated |
+| ASM-004 | A 25 percent reserve covers retries, provider latency, and short bursts.   | Failure telemetry and burst model        | Reliability owner | Retry rate exceeds 10 percent         | validated |
+| ASM-005 | Structured logs and audit events require 180 days of searchable retention. | Security and operations retention policy | Security owner    | Policy or classification changes      | validated |
 
 The annual planning volume is 1.8 million operations. Traffic is expected to peak at 2.5 accepted
 operations per second. Average execution is 45 seconds and p95 execution is 120 seconds. Applying
@@ -250,6 +259,14 @@ recovery target. Audit events retain for 180 days in the searchable tier and the
 policy. Evidence retention is separately configurable because size and sensitivity differ from
 structured events. Restoration and replay are exercised quarterly.
 
+### 7.5 Risk Records
+
+| ID      | Risk                                                       | Likelihood | Impact | Mitigation                                                                    | Owner             | Status    | Approved By                       |
+| ------- | ---------------------------------------------------------- | ---------- | ------ | ----------------------------------------------------------------------------- | ----------------- | --------- | --------------------------------- |
+| RSK-001 | Ambiguous post-submit outcomes could cause duplicate work. | possible   | high   | Fail closed, freeze the checkpoint, and require human review.                 | Workflow owner    | mitigated | Architecture Review Board (human) |
+| RSK-002 | A provider outage could exhaust global worker capacity.    | possible   | high   | Per-provider bulkheads, admission control, and reserved capacity.             | Reliability owner | mitigated | Reliability Review Lead (human)   |
+| RSK-003 | Evidence could retain sensitive service-request data.      | possible   | high   | Minimize capture, encrypt, restrict access, and set class-specific retention. | Security owner    | mitigated | Security Review Lead (human)      |
+
 ## 8. Security, Privacy, and Audit
 
 ### 8.1 Data Classification and Minimization
@@ -344,15 +361,23 @@ Editable source: [reference-deployment.drawio](diagrams/reference-deployment.dra
 
 ## 12. Architecture Decisions
 
-| Decision                        | Rationale                                                       | Trade-off                               | Revisit trigger                                           |
-| ------------------------------- | --------------------------------------------------------------- | --------------------------------------- | --------------------------------------------------------- |
-| Operation-centric API           | Stable identity supports polling, streaming, cancel, and resume | Clients manage asynchronous state       | Most operations complete synchronously under two seconds  |
-| Durable workflow engine         | Checkpoints and waits survive process restarts                  | Additional platform dependency          | Workflow throughput or cost misses target                 |
-| Deterministic online procedures | Predictable behavior, auditability, and bounded latency         | New routes require reviewed publication | A proven constrained runtime provides equivalent controls |
-| Committed route versions        | Rollback and canary are explicit                                | Registry lifecycle must be operated     | Version count or promotion latency becomes unmanageable   |
-| Fail closed on ambiguity        | Prevent duplicate irreversible actions                          | More human review and slower completion | Provider offers authoritative idempotent outcome lookup   |
+| ID      | Decision                              | Rationale                                                        | Consequences                             | Status   | Owner           | Approved By                       |
+| ------- | ------------------------------------- | ---------------------------------------------------------------- | ---------------------------------------- | -------- | --------------- | --------------------------------- |
+| ADR-001 | Use an operation-centric API.         | Stable identity supports polling, streaming, cancel, and resume. | Clients manage asynchronous state.       | accepted | API owner       | Architecture Review Board (human) |
+| ADR-002 | Use a durable workflow engine.        | Checkpoints and waits survive process restarts.                  | Adds a platform dependency.              | accepted | Platform owner  | Architecture Review Board (human) |
+| ADR-003 | Keep online procedures deterministic. | Behavior remains predictable, auditable, and latency-bounded.    | New routes require reviewed publication. | accepted | Workflow owner  | Architecture Review Board (human) |
+| ADR-004 | Bind routes to committed versions.    | Rollback and canary promotion remain explicit.                   | Registry lifecycle must be operated.     | accepted | Procedure owner | Architecture Review Board (human) |
+| ADR-005 | Fail closed on ambiguity.             | Duplicate irreversible actions are less likely.                  | Human review can delay completion.       | accepted | Policy owner    | Security Review Lead (human)      |
 
 ## 13. References
+
+| ID      | Supports                                                      | Source                                                                               | Retrieved On | Notes                                                       |
+| ------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------ | ------------ | ----------------------------------------------------------- |
+| EVD-001 | REQ-001, REQ-003, ADR-001                                     | [RFC 9110: HTTP Semantics](https://www.rfc-editor.org/rfc/rfc9110)                   | 2026-08-20   | HTTP semantics and idempotent request behavior.             |
+| EVD-002 | REQ-002                                                       | [Server-Sent Events](https://html.spec.whatwg.org/multipage/server-sent-events.html) | 2026-08-20   | Ordered event streaming and reconnect semantics.            |
+| EVD-003 | REQ-004, REQ-005, ADR-002, ADR-003, ADR-004, ADR-005, RSK-001 | Architecture discovery and policy workshop                                           | 2026-08-20   | Example human-reviewed project input.                       |
+| EVD-004 | REQ-006, RSK-002, RSK-003                                     | [NIST Secure Software Development Framework](https://csrc.nist.gov/Projects/ssdf)    | 2026-08-20   | Secure development and operational evidence guidance.       |
+| EVD-005 | ASM-001, ASM-002, ASM-003, ASM-004, ASM-005                   | Capacity forecast, load-test report, telemetry baseline, and retention policy        | 2026-08-20   | Sanitized evidence catalog entry for the reference project. |
 
 - [RFC 9110: HTTP Semantics](https://www.rfc-editor.org/rfc/rfc9110)
 - [RFC 9457: Problem Details for HTTP APIs](https://www.rfc-editor.org/rfc/rfc9457)

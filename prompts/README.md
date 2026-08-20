@@ -1,7 +1,8 @@
 # AI-Assisted Architecture Prompt Pack
 
-These prompts support facilitated architecture work with any capable language model. They do not
-grant an AI approval authority, and the CLI never sends document content to a model.
+These parameterized prompts support facilitated architecture work with any capable language model.
+Use `archwork prompts list` and `archwork prompts show <name>` or request them from the local MCP
+server. They do not grant an AI approval authority, and the CLI never sends content to a model.
 
 ## Safe Use
 
@@ -14,6 +15,7 @@ grant an AI approval authority, and the CLI never sends document content to a mo
 ## Prompts
 
 - [Discovery interview](discovery-interview.md)
+- [Architecture drafting](architecture-drafting.md)
 - [Hosting-team review](hosting-team-review.md)
 - [Security critique](security-critique.md)
 - [Behavioral gap analysis](behavioral-gap-analysis.md)
