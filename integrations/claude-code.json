@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "architecture-workbench": {
+      "type": "stdio",
+      "command": "archwork",
+      "args": ["mcp", "--config", "architecture.yaml"]
+    }
+  }
+}

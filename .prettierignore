@@ -5,3 +5,4 @@ examples/**/dist
 templates/**/diagrams/rendered/*.png
 examples/**/diagrams/rendered/*.png
 *.docx
+integrations/*.toml
