@@ -3,7 +3,7 @@ import path from "node:path";
 
 import sharp from "sharp";
 
-import { embedDiagramMetadata } from "../src/diagrams.js";
+import { canonicalizeDrawioXml, embedDiagramMetadata } from "../src/diagrams.js";
 
 type NodeKind = "component" | "managed" | "store" | "human" | "failure" | "boundary" | "decision";
 
@@ -900,7 +900,7 @@ async function writeDiagram(root: string, diagram: Diagram): Promise<void> {
   await mkdir(renderedDir, { recursive: true });
   const drawioPath = path.join(sourceDir, `${diagram.stem}.drawio`);
   const pngPath = path.join(renderedDir, `${diagram.stem}.png`);
-  await writeFile(drawioPath, makeDrawio(diagram), "utf8");
+  await writeFile(drawioPath, canonicalizeDrawioXml(makeDrawio(diagram)), "utf8");
   await sharp(Buffer.from(makeSvg(diagram)))
     .png()
     .toFile(pngPath);

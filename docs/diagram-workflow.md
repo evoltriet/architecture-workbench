@@ -11,21 +11,32 @@ makes the image recoverable in diagrams.net and lets validation prove that sourc
 
 ## Editing A Diagram
 
-1. Open the `.drawio` source in the diagrams.net desktop application or web editor.
-2. Make the change and save the source using the same filename.
-3. Export all previews:
+1. Inspect the semantic graph before editing:
+
+```bash
+archwork diagrams inspect --format json
+```
+
+2. Open the `.drawio` source in diagrams.net or edit its canonical XML under agent policy.
+3. Save the source using the same filename, then canonicalize XML for stable Git review:
+
+```bash
+archwork diagrams format
+```
+
+4. Export all previews when visual semantics changed:
 
 ```bash
 archwork diagrams export
 ```
 
-4. Verify source and preview integrity:
+5. Verify XML structure, unique IDs, edge endpoints, labels, and preview integrity:
 
 ```bash
 archwork diagrams verify
 ```
 
-5. Commit both files.
+6. Commit the `.drawio` source and PNG preview together.
 
 If the desktop executable is not discoverable, provide it explicitly:
 
@@ -46,6 +57,9 @@ diagram back to the `.drawio` sidecar and re-export it before committing.
 Word stores the PNG as a normal image. Reviewers can resize or comment on it, but changes made to
 the image in Word do not update the draw.io source. Treat the sidecar as authoritative and rebuild
 the DOCX after edits.
+
+Architecture Workbench accepts normal draw.io label markup but rejects control characters and
+active-content labels such as scripts, iframes, objects, and `javascript:` URLs.
 
 ## Naming Rules
 

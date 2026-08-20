@@ -4,7 +4,16 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { deflateSync, inflateSync } from "node:zlib";
 
-import type { Diagnostic, DiagramMetadata, ResolvedArchitectureConfig } from "./types.js";
+import { XMLParser } from "fast-xml-parser";
+
+import type {
+  Diagnostic,
+  DiagramEdge,
+  DiagramInspection,
+  DiagramMetadata,
+  DiagramNode,
+  ResolvedArchitectureConfig,
+} from "./types.js";
 
 const PNG_SIGNATURE = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]);
 const MXFILE_KEYWORD = "mxfile";
@@ -168,6 +177,304 @@ async function collectFiles(root: string, extension: string): Promise<string[]> 
   return results.sort();
 }
 
+export function canonicalizeDrawioXml(source: string): string {
+  const tokens = source.trim().replace(/>\s*</g, ">\n<").split("\n");
+  const output: string[] = [];
+  let depth = 0;
+  for (const raw of tokens) {
+    const token = raw.trim();
+    if (token.startsWith("</")) depth = Math.max(0, depth - 1);
+    output.push(`${"  ".repeat(depth)}${token}`);
+    const opens =
+      token.startsWith("<") &&
+      !token.startsWith("</") &&
+      !token.startsWith("<?") &&
+      !token.startsWith("<!") &&
+      !token.endsWith("/>") &&
+      !/<\/[^>]+>$/.test(token);
+    if (opens) depth += 1;
+  }
+  return `${output.join("\n")}\n`;
+}
+
+function xmlObject(value: unknown): Record<string, unknown> | undefined {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : undefined;
+}
+
+function isXmlObject(value: Record<string, unknown> | undefined): value is Record<string, unknown> {
+  return value !== undefined;
+}
+
+function xmlArray(value: unknown): unknown[] {
+  if (value === undefined) return [];
+  return Array.isArray(value) ? value : [value];
+}
+
+function graphCells(root: Record<string, unknown>): Record<string, unknown>[] {
+  const direct = xmlArray(root.mxCell).map(xmlObject).filter(isXmlObject);
+  const wrapped = [...xmlArray(root.object), ...xmlArray(root.UserObject)]
+    .map(xmlObject)
+    .filter(isXmlObject)
+    .map((wrapper): Record<string, unknown> | undefined => {
+      const cell = xmlObject(wrapper.mxCell);
+      if (!cell) return undefined;
+      return {
+        ...wrapper,
+        ...cell,
+        id: cell.id ?? wrapper.id,
+        value: cell.value ?? wrapper.label ?? wrapper.value,
+      };
+    })
+    .filter(isXmlObject);
+  return [...direct, ...wrapped];
+}
+
+function xmlString(value: unknown): string {
+  if (typeof value === "string") return value;
+  if (typeof value === "number") return String(value);
+  return "";
+}
+
+function finiteNumber(value: unknown): number | undefined {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : undefined;
+}
+
+function readableLabel(value: unknown): string {
+  return xmlString(value)
+    .replace(/<br\s*\/?\s*>/gi, " ")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function invalidLabelReason(value: unknown): string | undefined {
+  const raw = xmlString(value);
+  for (const character of raw) {
+    const code = character.codePointAt(0) ?? 0;
+    if (code < 32 && !new Set([9, 10, 13]).has(code)) return "contains control characters";
+  }
+  if (/<\/?(?:script|iframe|object)\b|javascript:/i.test(raw))
+    return "contains executable or active-content markup";
+  return undefined;
+}
+
+function parseDrawio(
+  source: string,
+  name: string,
+  relativeSource: string,
+): { diagram?: DiagramInspection; diagnostics: Diagnostic[] } {
+  const diagnostics: Diagnostic[] = [];
+  const parser = new XMLParser({
+    ignoreAttributes: false,
+    attributeNamePrefix: "",
+    allowBooleanAttributes: true,
+    parseAttributeValue: false,
+  });
+  let document: Record<string, unknown> | undefined;
+  try {
+    document = xmlObject(parser.parse(source));
+  } catch (error) {
+    return {
+      diagnostics: [
+        {
+          code: "diagram.invalid-xml",
+          severity: "error",
+          message: `Cannot parse draw.io XML: ${error instanceof Error ? error.message : String(error)}`,
+          file: relativeSource,
+        },
+      ],
+    };
+  }
+  const mxfile = xmlObject(document?.mxfile);
+  if (!mxfile) {
+    return {
+      diagnostics: [
+        {
+          code: "diagram.missing-mxfile",
+          severity: "error",
+          message: "Draw.io source does not contain an mxfile root.",
+          file: relativeSource,
+        },
+      ],
+    };
+  }
+  const pages: DiagramInspection["pages"] = [];
+  const nodes: DiagramNode[] = [];
+  const edges: DiagramEdge[] = [];
+  for (const [pageIndex, pageValue] of xmlArray(mxfile.diagram).entries()) {
+    const page = xmlObject(pageValue);
+    if (!page) continue;
+    const pageId = xmlString(page.id) || `page-${pageIndex + 1}`;
+    const pageName = xmlString(page.name) || pageId;
+    pages.push({ id: pageId, name: pageName });
+    const model = xmlObject(page.mxGraphModel);
+    const root = xmlObject(model?.root);
+    const cells = root ? graphCells(root) : [];
+    if (!model || !root || cells.length === 0) {
+      diagnostics.push({
+        code: "diagram.malformed-page",
+        severity: "error",
+        message: `Page '${pageName}' has no usable mxGraphModel cells.`,
+        file: relativeSource,
+      });
+      continue;
+    }
+    const ids = new Set<string>();
+    for (const cell of cells) {
+      const id = xmlString(cell.id);
+      if (!id) {
+        diagnostics.push({
+          code: "diagram.cell-missing-id",
+          severity: "error",
+          message: `Page '${pageName}' contains a cell without an ID.`,
+          file: relativeSource,
+        });
+        continue;
+      }
+      if (ids.has(id)) {
+        diagnostics.push({
+          code: "diagram.duplicate-cell-id",
+          severity: "error",
+          message: `Page '${pageName}' contains duplicate cell ID '${id}'.`,
+          file: relativeSource,
+        });
+      }
+      ids.add(id);
+    }
+    for (const cell of cells) {
+      const id = xmlString(cell.id);
+      if (!id) continue;
+      if (xmlString(cell.vertex) === "1") {
+        const geometry = xmlObject(cell.mxGeometry);
+        const x = finiteNumber(geometry?.x);
+        const y = finiteNumber(geometry?.y);
+        const width = finiteNumber(geometry?.width);
+        const height = finiteNumber(geometry?.height);
+        const bounds = geometry
+          ? {
+              ...(x !== undefined ? { x } : {}),
+              ...(y !== undefined ? { y } : {}),
+              ...(width !== undefined ? { width } : {}),
+              ...(height !== undefined ? { height } : {}),
+            }
+          : undefined;
+        const label = readableLabel(cell.value);
+        nodes.push({
+          pageId,
+          id,
+          label,
+          ...(xmlString(cell.parent) ? { parent: xmlString(cell.parent) } : {}),
+          ...(bounds && Object.keys(bounds).length > 0 ? { bounds } : {}),
+        });
+        if (!label) {
+          diagnostics.push({
+            code: "diagram.node-empty-label",
+            severity: "warning",
+            message: `Vertex '${id}' on page '${pageName}' has an empty label.`,
+            file: relativeSource,
+          });
+        }
+        const invalidReason = invalidLabelReason(cell.value);
+        if (invalidReason) {
+          diagnostics.push({
+            code: "diagram.invalid-label",
+            severity: "error",
+            message: `Vertex '${id}' on page '${pageName}' ${invalidReason}.`,
+            file: relativeSource,
+          });
+        }
+      }
+      if (xmlString(cell.edge) === "1") {
+        const sourceId = xmlString(cell.source);
+        const targetId = xmlString(cell.target);
+        edges.push({
+          pageId,
+          id,
+          label: readableLabel(cell.value),
+          ...(sourceId ? { source: sourceId } : {}),
+          ...(targetId ? { target: targetId } : {}),
+        });
+        const invalidReason = invalidLabelReason(cell.value);
+        if (invalidReason) {
+          diagnostics.push({
+            code: "diagram.invalid-label",
+            severity: "error",
+            message: `Edge '${id}' on page '${pageName}' ${invalidReason}.`,
+            file: relativeSource,
+          });
+        }
+        for (const [endpoint, endpointId] of [
+          ["source", sourceId],
+          ["target", targetId],
+        ] as const) {
+          if (!endpointId || ids.has(endpointId)) continue;
+          diagnostics.push({
+            code: "diagram.edge-invalid-endpoint",
+            severity: "error",
+            message: `Edge '${id}' references missing ${endpoint} '${endpointId}' on page '${pageName}'.`,
+            file: relativeSource,
+          });
+        }
+      }
+    }
+  }
+  if (pages.length === 0) {
+    diagnostics.push({
+      code: "diagram.no-pages",
+      severity: "error",
+      message: "Draw.io source contains no diagram pages.",
+      file: relativeSource,
+    });
+  }
+  return { diagram: { name, source: relativeSource, pages, nodes, edges }, diagnostics };
+}
+
+export async function inspectDiagrams(config: ResolvedArchitectureConfig): Promise<{
+  diagrams: DiagramInspection[];
+  diagnostics: Diagnostic[];
+}> {
+  const diagrams: DiagramInspection[] = [];
+  const diagnostics: Diagnostic[] = [];
+  for (const source of await collectFiles(config.diagramSourcePath, ".drawio")) {
+    const relativeSource = path.relative(config.projectDir, source).replaceAll("\\", "/");
+    const name = path
+      .relative(config.diagramSourcePath, source)
+      .slice(0, -path.extname(source).length)
+      .replaceAll("\\", "/");
+    const result = parseDrawio(await readFile(source, "utf8"), name, relativeSource);
+    if (result.diagram) diagrams.push(result.diagram);
+    diagnostics.push(...result.diagnostics);
+  }
+  return {
+    diagrams: diagrams.sort((left, right) => left.name.localeCompare(right.name)),
+    diagnostics,
+  };
+}
+
+export async function formatDrawioSources(config: ResolvedArchitectureConfig): Promise<string[]> {
+  const formatted: string[] = [];
+  for (const source of await collectFiles(config.diagramSourcePath, ".drawio")) {
+    const canonical = canonicalizeDrawioXml(await readFile(source, "utf8"));
+    await writeFile(source, canonical, "utf8");
+    const relativeStem = path
+      .relative(config.diagramSourcePath, source)
+      .slice(0, -path.extname(source).length);
+    const preview = path.join(config.diagramRenderedPath, `${relativeStem}.png`);
+    try {
+      await access(preview);
+      await embedDiagramMetadata(preview, source);
+    } catch {
+      // A missing preview remains an actionable verify diagnostic.
+    }
+    formatted.push(source);
+  }
+  return formatted.sort();
+}
+
 export async function verifyDiagrams(config: ResolvedArchitectureConfig): Promise<Diagnostic[]> {
   const diagnostics: Diagnostic[] = [];
   const sources = await collectFiles(config.diagramSourcePath, ".drawio");
@@ -260,6 +567,9 @@ export async function verifyDiagrams(config: ResolvedArchitectureConfig): Promis
       });
     }
   }
+
+  const semantic = await inspectDiagrams(config);
+  diagnostics.push(...semantic.diagnostics);
 
   return diagnostics;
 }

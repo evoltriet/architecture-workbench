@@ -1,1 +1,56 @@
-<?xml version="1.0" encoding="UTF-8"?><mxfile host="app.diagrams.net" agent="architecture-workbench" version="24.7.17" type="device"><diagram id="sequence-happy-path" name="Happy-Path Backend Sequence"><mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0"><root><mxCell id="0"/><mxCell id="1" parent="0"/><mxCell id="client" value="&lt;b&gt;1. Client&lt;/b&gt;&lt;br&gt;Create operation" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#EAF4F8;strokeColor=#347A9B;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="55" y="250" width="190" height="105" as="geometry"/></mxCell><mxCell id="api" value="&lt;b&gt;2. API&lt;/b&gt;&lt;br&gt;Validate and accept" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#EAF4F8;strokeColor=#347A9B;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="300" y="250" width="190" height="105" as="geometry"/></mxCell><mxCell id="workflow" value="&lt;b&gt;3. Workflow&lt;/b&gt;&lt;br&gt;Resolve procedure" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#EAF4F8;strokeColor=#347A9B;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="545" y="250" width="200" height="105" as="geometry"/></mxCell><mxCell id="queue" value="&lt;b&gt;4. Queue&lt;/b&gt;&lt;br&gt;Apply backpressure" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#EEF4E5;strokeColor=#6F934A;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="800" y="250" width="190" height="105" as="geometry"/></mxCell><mxCell id="worker" value="&lt;b&gt;5. Worker&lt;/b&gt;&lt;br&gt;Execute steps" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#EAF4F8;strokeColor=#347A9B;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="1045" y="250" width="190" height="105" as="geometry"/></mxCell><mxCell id="provider" value="&lt;b&gt;6. Provider&lt;/b&gt;&lt;br&gt;Confirm outcome" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#FFF3DF;strokeColor=#CF7A21;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="1290" y="250" width="210" height="105" as="geometry"/></mxCell><mxCell id="events" value="&lt;b&gt;Status Stream&lt;/b&gt;&lt;br&gt;Accepted&lt;br&gt;Running&lt;br&gt;Succeeded" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#EEF4E5;strokeColor=#6F934A;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="440" y="565" width="230" height="140" as="geometry"/></mxCell><mxCell id="audit" value="&lt;b&gt;Audit Store&lt;/b&gt;&lt;br&gt;Actor&lt;br&gt;Procedure version&lt;br&gt;Outcome" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#EEF4E5;strokeColor=#6F934A;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="930" y="565" width="230" height="140" as="geometry"/></mxCell><mxCell id="edge-1" value="request" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="client" target="api"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge-2" value="operationId" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="api" target="workflow"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge-3" value="" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="workflow" target="queue"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge-4" value="" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="queue" target="worker"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge-5" value="execute" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="worker" target="provider"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge-6" value="progress" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="workflow" target="events"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge-7" value="result" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="worker" target="audit"><mxGeometry relative="1" as="geometry"/></mxCell></root></mxGraphModel></diagram></mxfile>
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" agent="architecture-workbench" version="24.7.17" type="device">
+  <diagram id="sequence-happy-path" name="Happy-Path Backend Sequence">
+    <mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="client" value="&lt;b&gt;1. Client&lt;/b&gt;&lt;br&gt;Create operation" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#EAF4F8;strokeColor=#347A9B;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="55" y="250" width="190" height="105" as="geometry"/>
+        </mxCell>
+        <mxCell id="api" value="&lt;b&gt;2. API&lt;/b&gt;&lt;br&gt;Validate and accept" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#EAF4F8;strokeColor=#347A9B;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="300" y="250" width="190" height="105" as="geometry"/>
+        </mxCell>
+        <mxCell id="workflow" value="&lt;b&gt;3. Workflow&lt;/b&gt;&lt;br&gt;Resolve procedure" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#EAF4F8;strokeColor=#347A9B;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="545" y="250" width="200" height="105" as="geometry"/>
+        </mxCell>
+        <mxCell id="queue" value="&lt;b&gt;4. Queue&lt;/b&gt;&lt;br&gt;Apply backpressure" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#EEF4E5;strokeColor=#6F934A;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="800" y="250" width="190" height="105" as="geometry"/>
+        </mxCell>
+        <mxCell id="worker" value="&lt;b&gt;5. Worker&lt;/b&gt;&lt;br&gt;Execute steps" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#EAF4F8;strokeColor=#347A9B;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1045" y="250" width="190" height="105" as="geometry"/>
+        </mxCell>
+        <mxCell id="provider" value="&lt;b&gt;6. Provider&lt;/b&gt;&lt;br&gt;Confirm outcome" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#FFF3DF;strokeColor=#CF7A21;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1290" y="250" width="210" height="105" as="geometry"/>
+        </mxCell>
+        <mxCell id="events" value="&lt;b&gt;Status Stream&lt;/b&gt;&lt;br&gt;Accepted&lt;br&gt;Running&lt;br&gt;Succeeded" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#EEF4E5;strokeColor=#6F934A;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="440" y="565" width="230" height="140" as="geometry"/>
+        </mxCell>
+        <mxCell id="audit" value="&lt;b&gt;Audit Store&lt;/b&gt;&lt;br&gt;Actor&lt;br&gt;Procedure version&lt;br&gt;Outcome" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#EEF4E5;strokeColor=#6F934A;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="930" y="565" width="230" height="140" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-1" value="request" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="client" target="api">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-2" value="operationId" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="api" target="workflow">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-3" value="" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="workflow" target="queue">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-4" value="" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="queue" target="worker">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-5" value="execute" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="worker" target="provider">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-6" value="progress" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="workflow" target="events">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-7" value="result" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="worker" target="audit">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

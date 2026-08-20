@@ -1,1 +1,65 @@
-<?xml version="1.0" encoding="UTF-8"?><mxfile host="app.diagrams.net" agent="architecture-workbench" version="24.7.17" type="device"><diagram id="retry-escalation" name="Retry and Escalation Policy"><mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0"><root><mxCell id="0"/><mxCell id="1" parent="0"/><mxCell id="failure" value="&lt;b&gt;Failure&lt;/b&gt;&lt;br&gt;Classify once" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#FBE9E7;strokeColor=#B6534D;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="80" y="320" width="200" height="110" as="geometry"/></mxCell><mxCell id="safe" value="&lt;b&gt;Safe to retry?&lt;/b&gt;" style="rhombus;whiteSpace=wrap;html=1;fillColor=#FFF3DF;strokeColor=#CF7A21;fontColor=#173042;fontFamily=Arial;fontSize=13;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="370" y="285" width="210" height="180" as="geometry"/></mxCell><mxCell id="budget" value="&lt;b&gt;Budget remains?&lt;/b&gt;" style="rhombus;whiteSpace=wrap;html=1;fillColor=#FFF3DF;strokeColor=#CF7A21;fontColor=#173042;fontFamily=Arial;fontSize=13;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="680" y="285" width="210" height="180" as="geometry"/></mxCell><mxCell id="retry" value="&lt;b&gt;Bounded Retry&lt;/b&gt;&lt;br&gt;Backoff and jitter&lt;br&gt;Same checkpoint" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#FFF3DF;strokeColor=#CF7A21;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="1000" y="155" width="240" height="135" as="geometry"/></mxCell><mxCell id="quarantine" value="&lt;b&gt;Route Quarantine&lt;/b&gt;&lt;br&gt;Stop new admissions&lt;br&gt;Protect other routes" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#FBE9E7;strokeColor=#B6534D;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="1000" y="455" width="250" height="145" as="geometry"/></mxCell><mxCell id="human" value="&lt;b&gt;Human Review&lt;/b&gt;&lt;br&gt;Ambiguous or irreversible&lt;br&gt;No automatic retry" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#FFF3DF;strokeColor=#CF7A21;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="1320" y="155" width="240" height="145" as="geometry"/></mxCell><mxCell id="incident" value="&lt;b&gt;Repair Incident&lt;/b&gt;&lt;br&gt;Canonical signature&lt;br&gt;Owner and priority" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#FBE9E7;strokeColor=#B6534D;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="1320" y="455" width="240" height="145" as="geometry"/></mxCell><mxCell id="terminal" value="&lt;b&gt;Terminal Explanation&lt;/b&gt;&lt;br&gt;Reason&lt;br&gt;Attempt count&lt;br&gt;Next action" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#EEF4E5;strokeColor=#6F934A;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="650" y="650" width="250" height="140" as="geometry"/></mxCell><mxCell id="edge-1" value="" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="failure" target="safe"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge-2" value="yes" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="safe" target="budget"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge-3" value="yes" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="budget" target="retry"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge-4" value="re-evaluate" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="retry" target="safe"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge-5" value="deterministic" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="safe" target="quarantine"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge-6" value="exhausted" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="budget" target="quarantine"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge-7" value="" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="quarantine" target="incident"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge-8" value="ambiguous" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="safe" target="human"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge-9" value="" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="quarantine" target="terminal"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge-10" value="" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="human" target="terminal"><mxGeometry relative="1" as="geometry"/></mxCell></root></mxGraphModel></diagram></mxfile>
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" agent="architecture-workbench" version="24.7.17" type="device">
+  <diagram id="retry-escalation" name="Retry and Escalation Policy">
+    <mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="failure" value="&lt;b&gt;Failure&lt;/b&gt;&lt;br&gt;Classify once" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#FBE9E7;strokeColor=#B6534D;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="80" y="320" width="200" height="110" as="geometry"/>
+        </mxCell>
+        <mxCell id="safe" value="&lt;b&gt;Safe to retry?&lt;/b&gt;" style="rhombus;whiteSpace=wrap;html=1;fillColor=#FFF3DF;strokeColor=#CF7A21;fontColor=#173042;fontFamily=Arial;fontSize=13;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="370" y="285" width="210" height="180" as="geometry"/>
+        </mxCell>
+        <mxCell id="budget" value="&lt;b&gt;Budget remains?&lt;/b&gt;" style="rhombus;whiteSpace=wrap;html=1;fillColor=#FFF3DF;strokeColor=#CF7A21;fontColor=#173042;fontFamily=Arial;fontSize=13;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="680" y="285" width="210" height="180" as="geometry"/>
+        </mxCell>
+        <mxCell id="retry" value="&lt;b&gt;Bounded Retry&lt;/b&gt;&lt;br&gt;Backoff and jitter&lt;br&gt;Same checkpoint" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#FFF3DF;strokeColor=#CF7A21;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="155" width="240" height="135" as="geometry"/>
+        </mxCell>
+        <mxCell id="quarantine" value="&lt;b&gt;Route Quarantine&lt;/b&gt;&lt;br&gt;Stop new admissions&lt;br&gt;Protect other routes" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#FBE9E7;strokeColor=#B6534D;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="455" width="250" height="145" as="geometry"/>
+        </mxCell>
+        <mxCell id="human" value="&lt;b&gt;Human Review&lt;/b&gt;&lt;br&gt;Ambiguous or irreversible&lt;br&gt;No automatic retry" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#FFF3DF;strokeColor=#CF7A21;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1320" y="155" width="240" height="145" as="geometry"/>
+        </mxCell>
+        <mxCell id="incident" value="&lt;b&gt;Repair Incident&lt;/b&gt;&lt;br&gt;Canonical signature&lt;br&gt;Owner and priority" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#FBE9E7;strokeColor=#B6534D;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1320" y="455" width="240" height="145" as="geometry"/>
+        </mxCell>
+        <mxCell id="terminal" value="&lt;b&gt;Terminal Explanation&lt;/b&gt;&lt;br&gt;Reason&lt;br&gt;Attempt count&lt;br&gt;Next action" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#EEF4E5;strokeColor=#6F934A;fontColor=#173042;fontFamily=Arial;fontSize=14;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="650" y="650" width="250" height="140" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-1" value="" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="failure" target="safe">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-2" value="yes" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="safe" target="budget">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-3" value="yes" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="budget" target="retry">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-4" value="re-evaluate" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="retry" target="safe">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-5" value="deterministic" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="safe" target="quarantine">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-6" value="exhausted" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="budget" target="quarantine">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-7" value="" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="quarantine" target="incident">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-8" value="ambiguous" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="safe" target="human">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-9" value="" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="quarantine" target="terminal">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-10" value="" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#567786;fontFamily=Arial;fontSize=12;" edge="1" parent="1" source="human" target="terminal">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
